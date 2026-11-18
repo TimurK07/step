@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Степь на изломе</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Onest:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0d0b09; --ink:#F4ECDD; --muted:#C9BDA6; --faint:#8E836F; --gold:#D9A441; --red:#B8322A; --red2:#D9473B; --white:#E9E4DA; --blue:#4F86B8; --paper:#F2E8D3; --dark:#1E1913;
+  --display:"Oswald","Arial Narrow",Impact,sans-serif; --serif:"PT Serif",Georgia,serif; --body:"Onest","Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility 0s .9s;overflow:hidden}
+.slide.on{opacity:1;visibility:visible;transition:opacity .9s ease}
+.bg{position:absolute;inset:-4%;background-size:cover;background-position:center;transform:scale(1.02);filter:saturate(.85)}
+.slide.on .bg{animation:kb 22s ease-out forwards}
+@keyframes kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.14) translate(-1.5%,-1%)}}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(13,11,9,.94) 0%,rgba(13,11,9,.7) 42%,rgba(13,11,9,.2) 100%)}
+.shade.full{background:rgba(13,11,9,.82)}
+.shade.bottom{background:linear-gradient(0deg,rgba(13,11,9,.96) 0%,rgba(13,11,9,.55) 50%,rgba(13,11,9,.15) 100%)}
+.in{position:relative;height:100%;padding:clamp(70px,9vh,110px) clamp(20px,6vw,110px) clamp(90px,12vh,130px);display:flex;flex-direction:column;justify-content:center;gap:clamp(14px,2.2vh,26px)}
+.in.center{align-items:center;text-align:center}
+.r{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s cubic-bezier(.2,.8,.2,1)}
+.slide.on .r{opacity:1;transform:none}
+.slide.on .r.d1{transition-delay:.25s}.slide.on .r.d2{transition-delay:.5s}.slide.on .r.d3{transition-delay:.75s}.slide.on .r.d4{transition-delay:1s}.slide.on .r.d5{transition-delay:1.25s}
+
+.eyebrow{font-family:var(--display);font-weight:500;font-size:clamp(13px,1.1vw,16px);letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.mega{margin:0;font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(56px,9.5vw,170px);line-height:.86;letter-spacing:-.01em}
+.mega span{display:block;color:var(--gold)}
+h2.t{margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(34px,4.4vw,72px);line-height:1.02;max-width:18ch}
+h2.t em{font-style:normal;color:var(--gold)}
+h3.t{margin:0;font-family:var(--serif);font-weight:700;font-size:clamp(28px,3vw,48px);line-height:1.08}
+h3.t em{font-style:normal;color:var(--gold)}
+.lead{margin:0;font-size:clamp(17px,1.45vw,23px);line-height:1.55;color:var(--muted);max-width:52ch}
+.lead b{color:var(--ink);font-weight:600}
+.chapnum{font-family:var(--display);font-weight:700;font-size:clamp(120px,17vw,300px);line-height:.8;color:transparent;-webkit-text-stroke:2px rgba(217,164,65,.55);position:absolute;right:clamp(20px,5vw,90px);bottom:clamp(80px,12vh,140px)}
+.rule{width:80px;height:3px;background:var(--gold)}
+
+/* chrome */
+.top{position:fixed;left:0;right:0;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:16px clamp(18px,3vw,40px);pointer-events:none}
+.top > *{pointer-events:auto}
+.brand{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.brand b{color:var(--gold);font-weight:600}
+.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(244,236,221,.2);border-radius:6px;padding:8px 12px;font-size:13.5px;backdrop-filter:blur(6px)}
+.ghost:hover{border-color:var(--ink)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;align-items:center;gap:16px;padding:14px clamp(18px,3vw,40px) 18px;background:linear-gradient(0deg,rgba(13,11,9,.85),rgba(13,11,9,0))}
+.chaps{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.chap{background:none;border:0;padding:0;text-align:left;display:flex;flex-direction:column;gap:6px;opacity:.55;transition:opacity .3s}
+.chap:hover,.chap.on{opacity:1}
+.chap i{display:block;height:3px;background:rgba(244,236,221,.2);border-radius:2px;overflow:hidden}
+.chap i b{display:block;height:100%;width:0;background:var(--gold);transition:width .6s}
+.chap span{font-family:var(--display);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{display:flex;gap:8px}
+.nb{width:46px;height:46px;border-radius:50%;border:1px solid rgba(244,236,221,.3);background:rgba(255,255,255,.05);display:grid;place-items:center;font-size:18px}
+.nb.go{background:var(--gold);color:#1a140c;border-color:var(--gold);font-weight:700}
+.count{font-family:var(--display);font-size:13px;letter-spacing:.1em;color:var(--faint);min-width:52px;text-align:right}
+
+/* components */
+.cta{display:inline-flex;align-items:center;gap:12px;background:var(--gold);color:#1a140c;border:0;border-radius:4px;padding:17px 30px;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.14em;text-transform:uppercase;align-self:flex-start}
+.center .cta{align-self:center}
+.cta:hover{filter:brightness(1.1)}
+.qlist{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1300px;width:100%}
+.q{border-top:2px solid var(--gold);padding-top:12px;text-align:left}
+.q b{display:block;font-family:var(--display);font-size:clamp(28px,2.6vw,40px);color:var(--gold);line-height:1}
+.q span{display:block;font-size:clamp(15px,1.3vw,20px);line-height:1.4;color:var(--muted);margin-top:6px}
+
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,2vw,30px);align-items:stretch;max-width:1200px;width:100%}
+.side{text-align:left;border-radius:6px;padding:clamp(18px,2vw,28px);background:rgba(255,255,255,.04);border:1px solid rgba(244,236,221,.14)}
+.side small{font-family:var(--display);letter-spacing:.2em;text-transform:uppercase;font-size:13px}
+.side h4{margin:6px 0 12px;font-family:var(--serif);font-size:clamp(22px,2vw,32px)}
+.side ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:clamp(15px,1.15vw,18px);line-height:1.45;color:var(--muted)}
+.side.g small{color:var(--gold)}.side.g{border-color:rgba(217,164,65,.45)}
+.side.rd small{color:var(--red2)}.side.rd{border-color:rgba(217,71,59,.45)}
+.vsx{align-self:center;font-family:var(--display);font-weight:700;font-size:clamp(30px,3vw,48px);color:var(--faint)}
+
+.days{display:flex;align-items:flex-end;gap:clamp(16px,3vw,50px);flex-wrap:wrap}
+.bignum{font-family:var(--display);font-weight:700;font-size:clamp(110px,16vw,260px);line-height:.82;color:var(--gold)}
+.bignum small{font-size:.28em;color:var(--muted);margin-left:12px;letter-spacing:.04em}
+.track{position:relative;width:min(1100px,100%);height:70px;margin-top:6px}
+.track .ln{position:absolute;left:0;right:0;top:20px;height:4px;background:rgba(244,236,221,.15)}
+.track .fill{position:absolute;left:0;top:20px;height:4px;background:linear-gradient(90deg,var(--gold),var(--red2));width:0;transition:width 3.2s cubic-bezier(.3,.1,.2,1) .6s}
+.slide.on .track .fill{width:100%}
+.track .pt{position:absolute;top:10px;transform:translateX(-50%);text-align:center;width:180px}
+.track .pt i{display:block;width:24px;height:24px;border-radius:50%;background:var(--bg);border:4px solid var(--gold);margin:0 auto 8px}
+.track .pt.end i{border-color:var(--red2);background:var(--red2)}
+.track .pt b{font-family:var(--display);font-size:16px;letter-spacing:.05em}
+.track .pt span{display:block;font-size:13.5px;color:var(--muted)}
+
+/* scale (Alash) */
+.scale-wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,4vw,60px);align-items:center;width:100%;max-width:1300px}
+.scale{position:relative;height:min(46vh,400px)}
+.scale svg{width:100%;height:100%;overflow:visible}
+.beam{transition:transform 1.2s cubic-bezier(.4,1.5,.5,1);transform-origin:300px 120px}
+.steps{display:flex;flex-direction:column;gap:8px}
+.st{display:grid;grid-template-columns:90px 1fr;gap:14px;padding:12px 14px;border-radius:6px;border:1px solid transparent;background:rgba(255,255,255,.03);opacity:.4;transition:.4s;cursor:pointer;text-align:left}
+.st.on{opacity:1;border-color:rgba(217,164,65,.5);background:rgba(217,164,65,.08)}
+.st.past{opacity:.75}
+.st time{font-family:var(--display);font-weight:600;font-size:19px;color:var(--gold)}
+.st b{display:block;font-family:var(--serif);font-size:clamp(17px,1.35vw,21px);margin-bottom:3px}
+.st span{font-size:clamp(14px,1.05vw,16px);color:var(--muted);line-height:1.45}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,2.4vw,40px);max-width:1250px;width:100%}
+.stat{border-left:3px solid var(--red2);padding-left:18px}
+.stat .n{font-family:var(--display);font-weight:700;font-size:clamp(52px,6vw,104px);line-height:.95;color:var(--ink)}
+.stat .n small{font-size:.42em;color:var(--muted)}
+.stat p{margin:8px 0 0;font-size:clamp(14.5px,1.12vw,18px);line-height:1.45;color:var(--muted)}
+.herd{width:min(1100px,100%);display:flex;flex-direction:column;gap:14px}
+.hrow{display:grid;grid-template-columns:110px 1fr 190px;gap:16px;align-items:center}
+.hrow time{font-family:var(--display);font-size:22px;color:var(--muted)}
+.hbar{height:clamp(34px,5vh,54px);background:rgba(244,236,221,.06);border-radius:4px;overflow:hidden}
+.hbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8a7a5a,#cbb58a);transition:width 1.6s cubic-bezier(.2,.8,.2,1) .5s}
+.hrow.b .hbar i{background:linear-gradient(90deg,#6a1d17,var(--red2));transition-delay:1.6s}
+.hrow b{font-family:var(--display);font-size:clamp(22px,2.2vw,34px)}
+.slide.on .hrow.a .hbar i{width:100%}
+.slide.on .hrow.b .hbar i{width:11%}
+.memorial{font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.4vw,38px);line-height:1.35;max-width:30ch}
+.candle{width:16px;height:60px;margin:0 auto;position:relative;background:linear-gradient(180deg,#efe6d2,#cfc2a5);border-radius:3px}
+.candle::before{content:"";position:absolute;left:50%;top:-30px;width:16px;height:28px;margin-left:-8px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 50% 70%,#fff6c8,#ffb340 50%,rgba(255,120,30,0) 72%);animation:fl 1.6s ease-in-out infinite;filter:blur(.3px)}
+.candle::after{content:"";position:absolute;left:50%;top:-60px;width:120px;height:120px;margin-left:-60px;border-radius:50%;background:radial-gradient(circle,rgba(255,190,90,.35),transparent 65%);animation:gl 2.4s ease-in-out infinite}
+@keyframes fl{50%{transform:scaleY(1.12) translateX(1px)}}
+@keyframes gl{50%{opacity:.6}}
+
+.debate{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2vw,28px);max-width:1200px;width:100%}
+.debate .side ul{gap:10px}
+
+/* NEP flow */
+.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(14px,2.4vw,40px);align-items:center;max-width:1200px;width:100%}
+.card{border-radius:6px;padding:clamp(18px,2vw,28px);background:var(--paper);color:var(--dark);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.card.old{background:#cfc7b8;color:#3a342c;transform:rotate(-1.5deg)}
+.card small{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--red)}
+.card h4{margin:6px 0 10px;font-family:var(--serif);font-size:clamp(24px,2.3vw,36px)}
+.card p{margin:0;font-size:clamp(15px,1.15vw,18px);line-height:1.5}
+.card.old h4{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:3px}
+.arrowbig{font-family:var(--display);font-size:clamp(40px,4vw,70px);color:var(--gold)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,28px);max-width:1250px;width:100%}
+.tile{border-top:3px solid var(--gold);padding-top:14px}
+.tile time{display:block;font-family:var(--display);font-weight:600;font-size:clamp(20px,1.8vw,28px);color:var(--gold)}
+.tile b{display:block;font-family:var(--serif);font-size:clamp(19px,1.6vw,25px);margin:6px 0}
+.tile p{margin:0;font-size:clamp(14.5px,1.1vw,17.5px);line-height:1.5;color:var(--muted)}
+
+.answers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,1.6vw,22px);max-width:1400px;width:100%}
+.ans{background:rgba(255,255,255,.04);border:1px solid rgba(244,236,221,.14);border-radius:6px;padding:16px 18px;text-align:left}
+.ans b{display:block;font-family:var(--display);font-size:30px;color:var(--gold);line-height:1}
+.ans h5{margin:6px 0 8px;font-family:var(--serif);font-size:clamp(17px,1.3vw,21px)}
+.ans p{margin:0;font-size:clamp(14px,1.02vw,16px);line-height:1.5;color:var(--muted)}
+
+@media (max-width:900px){
+  .qlist,.answers{grid-template-columns:1fr 1fr}
+  .vs,.flow{grid-template-columns:1fr}.vsx,.arrowbig{text-align:center}.arrowbig{transform:rotate(90deg)}
+  .scale-wrap{grid-template-columns:1fr}.scale{height:30vh}
+  .stats,.grid3,.debate{grid-template-columns:1fr}
+  .in{justify-content:flex-start;overflow-y:auto;padding-top:70px}
+  .chap span{display:none}
+  .hrow{grid-template-columns:60px 1fr 90px}
+  .chapnum{display:none}
+  .track{width:calc(100% - 70px);margin-left:35px}.track .pt{width:90px}.track .pt span{display:none}.track .pt b{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><div class="brand">Степь на <b>изломе</b> · 1917–1933</div><button class="ghost" id="fs" type="button">⛶ Экран</button></div>
+
+<main class="deck" id="deck">
+
+  <!-- 0 cover -->
+  <section class="slide" data-ch="0">
+    <div class="bg" style="background-image:url(assets/famine.jpg)"></div><div class="shade"></div>
+    <div class="in">
+      <div class="eyebrow r">Тема 8 · Советский период</div>
+      <h1 class="mega r d1">Степь<span>на изломе</span></h1>
+      <p class="lead r d2">Четыре истории о том, как в 1917–1933 годах решалась судьба казахского народа: автономии, гражданская война, два страшных голода и короткая передышка НЭПа.</p>
+      <button class="cta r d3" type="button" data-go="1">Начать →</button>
+    </div>
+  </section>
+
+  <!-- 1 questions -->
+  <section class="slide" data-ch="0">
+    <div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">Наш план</div>
+      <h2 class="t r d1" style="max-width:none">Четыре вопроса — <em>четыре главы</em></h2>
+      <div class="qlist r d2">
+        <div class="q"><b>01</b><span>Кокандская автономия как противовес советской власти в Туркестане</span></div>
+        <div class="q"><b>02</b><span>Алаш-Орда между красными и белыми в годы Гражданской войны</span></div>
+        <div class="q"><b>03</b><span>Голод 1921–1922 и 1931–1933 годов как геноцид казахского народа</span></div>
+        <div class="q"><b>04</b><span>НЭП и земельно-водная реформа</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 ch1 cover -->
+  <section class="slide" data-ch="1">
+    <div class="bg" style="background-image:url(assets/kokand.jpg)"></div><div class="shade"></div>
+    <div class="chapnum r d2">01</div>
+    <div class="in">
+      <div class="eyebrow r">Глава 1 · ноябрь 1917 — февраль 1918</div>
+      <h2 class="t r d1">Кокандская <em>автономия</em></h2>
+      <p class="lead r d2">27 ноября 1917 года IV Чрезвычайный общемусульманский съезд в Коканде провозгласил <b>Туркестанскую автономию</b> в составе демократической России. Правительство возглавил <b>Мухамеджан Тынышпаев</b>, затем <b>Мустафа Шокай</b>.</p>
+    </div>
+  </section>
+
+  <!-- 3 ch1 vs -->
+  <section class="slide" data-ch="1">
+    <div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">Почему «противовес»</div>
+      <h3 class="t r d1">Две власти в одном крае</h3>
+      <div class="vs r d2">
+        <div class="side rd"><small>Ташкент</small><h4>Совнарком Туркестана</h4><ul><li>Большевики и левые эсеры</li><li>Опора — русские рабочие и солдаты, меньшинство края</li><li>III краевой съезд советов не допустил мусульман в органы власти</li></ul></div>
+        <div class="vsx">VS</div>
+        <div class="side g"><small>Коканд</small><h4>Туркестанская автономия</h4><ul><li>Местные политики-мусульмане, в том числе казахи</li><li>Опора — коренное население, большинство края</li><li>Цель — автономия и Учредительное собрание</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 ch1 72 days -->
+  <section class="slide" data-ch="1">
+    <div class="bg" style="background-image:url(assets/kokand.jpg);filter:grayscale(1) brightness(.5)"></div><div class="shade full"></div>
+    <div class="in">
+      <div class="eyebrow r">Итог</div>
+      <div class="days r d1"><div class="bignum"><span data-count="72">0</span><small>дня</small></div><p class="lead" style="max-width:34ch">Столько прожила автономия. В феврале 1918 года красные отряды взяли Коканд штурмом: город был разрушен, погибли тысячи жителей.</p></div>
+      <div class="track r d2"><div class="ln"></div><div class="fill"></div>
+        <div class="pt" style="left:0%"><i></i><b>27 ноября 1917</b><span>провозглашение</span></div>
+        <div class="pt" style="left:50%"><i></i><b>январь 1918</b><span>ультиматум Ташкента</span></div>
+        <div class="pt end" style="left:100%"><i></i><b>февраль 1918</b><span>разгром Коканда</span></div>
+      </div>
+      <p class="lead r d3" style="margin-top:16px">Разгром автономии стал одной из причин <b>басмаческого движения</b>. Мустафа Шокай эмигрировал и до конца жизни боролся за свободу Туркестана.</p>
+    </div>
+  </section>
+
+  <!-- 5 ch2 cover -->
+  <section class="slide" data-ch="2">
+    <div class="bg" style="background-image:url(assets/alash.jpg)"></div><div class="shade"></div>
+    <div class="chapnum r d2">02</div>
+    <div class="in">
+      <div class="eyebrow r">Глава 2 · 1917–1920</div>
+      <h2 class="t r d1">Алаш-Орда между <em>красными</em> и <em>белыми</em></h2>
+      <p class="lead r d2">В декабре 1917 года II Всеказахский съезд в Оренбурге провозгласил <b>автономию Алаш</b>. Правительство Алаш-Орда возглавил <b>Алихан Бокейханов</b>. Но в Гражданской войне у автономии не было своей армии, способной выстоять одной.</p>
+    </div>
+  </section>
+
+  <!-- 6 ch2 scale -->
+  <section class="slide" data-ch="2" id="scaleSlide">
+    <div class="shade full"></div>
+    <div class="in">
+      <div class="eyebrow r">Весы Гражданской войны · нажмите на год</div>
+      <div class="scale-wrap r d1">
+        <div class="scale">
+          <svg viewBox="0 0 600 400" aria-hidden="true">
+            <path d="M300 120 L270 380 L330 380 Z" fill="#3a3024"/><rect x="220" y="372" width="160" height="18" rx="4" fill="#2c241a"/>
+            <g class="beam" id="beam">
+              <rect x="60" y="112" width="480" height="14" rx="7" fill="#c9a04b"/>
+              <circle cx="300" cy="120" r="16" fill="#e2bf6a"/>
+              <g><line x1="80" y1="126" x2="50" y2="230" stroke="#8a7a5a" stroke-width="3"/><line x1="80" y1="126" x2="110" y2="230" stroke="#8a7a5a" stroke-width="3"/><path d="M30 230 h100 a50 22 0 0 1 -100 0z" fill="#E9E4DA"/><text x="80" y="275" text-anchor="middle" font-family="Oswald,Arial Narrow" font-size="22" fill="#E9E4DA" letter-spacing="2">БЕЛЫЕ</text></g>
+              <g><line x1="520" y1="126" x2="490" y2="230" stroke="#8a7a5a" stroke-width="3"/><line x1="520" y1="126" x2="550" y2="230" stroke="#8a7a5a" stroke-width="3"/><path d="M470 230 h100 a50 22 0 0 1 -100 0z" fill="#D9473B"/><text x="520" y="275" text-anchor="middle" font-family="Oswald,Arial Narrow" font-size="22" fill="#D9473B" letter-spacing="2">КРАСНЫЕ</text></g>
+              <g id="alashMark"><circle id="amk" cx="300" cy="78" r="30" fill="#D9A441"/><text id="amt" x="300" y="85" text-anchor="middle" font-family="Oswald,Arial Narrow" font-weight="700" font-size="17" fill="#1a140c">АЛАШ</text></g>
+            </g>
+          </svg>
+        </div>
+        <div class="steps" id="steps">
+          <button class="st" data-k="0" type="button"><time>1917</time><div><b>Ни с кем</b><span>Алаш-Орда не признала власть большевиков после Октября и провозгласила автономию.</span></div></button>
+          <button class="st" data-k="1" type="button"><time>1918</time><div><b>С белыми</b><span>Союз с антибольшевистскими правительствами в Самаре и Омске, алашская милиция воюет против красных.</span></div></button>
+          <button class="st" data-k="2" type="button"><time>1919</time><div><b>Разрыв с белыми</b><span>Колчак отказался признать автономию. Советская власть объявила алашевцам амнистию — они перешли к красным.</span></div></button>
+          <button class="st" data-k="3" type="button"><time>1920</time><div><b>Конец автономии</b><span>В марте Казревком упразднил Алаш-Орду. 26 августа создана Киргизская (Казахская) АССР в составе РСФСР.</span></div></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ch2 verdict -->
+  <section class="slide" data-ch="2">
+    <div class="bg" style="background-image:url(assets/alash.jpg);filter:grayscale(.6) brightness(.55)"></div><div class="shade bottom"></div>
+    <div class="in" style="justify-content:flex-end">
+      <div class="eyebrow r">Как охарактеризовать выбор</div>
+      <h3 class="t r d1" style="max-width:24ch">Не «белые» и не «красные», а <em>за автономию</em></h3>
+      <p class="lead r d2">Выбор Алаш-Орды был <b>вынужденным и тактическим</b>: она шла с той силой, которая обещала признать казахскую автономию. Белые её не признали — алашевцы ушли к красным. Цель оставалась одна: сохранить землю и самоуправление казахов.</p>
+      <p class="lead r d3">Судьба лидеров трагична: большинство деятелей Алаша погибли в годы репрессий и были реабилитированы только в конце 1980-х.</p>
+    </div>
+  </section>
+
+  <!-- 8 ch3 cover -->
+  <section class="slide" data-ch="3">
+    <div class="bg" style="background-image:url(assets/famine.jpg)"></div><div class="shade"></div>
+    <div class="chapnum r d2">03</div>
+    <div class="in">
+      <div class="eyebrow r">Глава 3 · 1921–1922 и 1931–1933</div>
+      <h2 class="t r d1">Ашаршылық — <em>великий голод</em></h2>
+      <p class="lead r d2">Казахский народ пережил два голода. Первый вызвали продразвёрстка, засуха и джут. Второй — <b>насильственная коллективизация и перевод кочевников на оседлость</b> при Филиппе Голощёкине.</p>
+    </div>
+  </section>
+
+  <!-- 9 ch3 herd -->
+  <section class="slide" data-ch="3">
+    <div class="bg" style="background-image:url(assets/aul.jpg);filter:grayscale(1) brightness(.4)"></div><div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">Скот — это жизнь кочевника</div>
+      <h3 class="t r d1">Поголовье скота в Казахстане</h3>
+      <div class="herd r d2">
+        <div class="hrow a"><time>1929</time><div class="hbar"><i></i></div><b>≈ 40 млн</b></div>
+        <div class="hrow b"><time>1933</time><div class="hbar"><i></i></div><b>≈ 4,5 млн</b></div>
+      </div>
+      <p class="lead r d3">Скот изымали по планам заготовок и сгоняли в колхозы, где он массово погибал. Кочевник без скота оставался без еды.</p>
+    </div>
+  </section>
+
+  <!-- 10 ch3 stats -->
+  <section class="slide" data-ch="3">
+    <div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">Цена коллективизации</div>
+      <div class="stats r d1">
+        <div class="stat"><div class="n">1,5–2,3<small> млн</small></div><p>погибших в 1931–1933 годах, по разным оценкам</p></div>
+        <div class="stat"><div class="n">≈ <span data-count="40">0</span><small>%</small></div><p>всех казахов — самая большая доля потерь среди народов СССР</p></div>
+        <div class="stat"><div class="n">&gt; 1<small> млн</small></div><p>откочевали в Китай, Монголию, Среднюю Азию и Россию — многие не вернулись</p></div>
+      </div>
+      <p class="lead r d2">Голод 1921–1922 годов унёс сотни тысяч жизней. Численность казахов восстановилась до уровня 1920-х лишь спустя десятилетия.</p>
+    </div>
+  </section>
+
+  <!-- 11 ch3 debate -->
+  <section class="slide" data-ch="3">
+    <div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">Спорный вопрос</div>
+      <h3 class="t r d1">Геноцид или <em>трагедия</em>?</h3>
+      <div class="debate r d2">
+        <div class="side rd"><small>Аргументы «геноцид»</small><ul><li>Потери казахов непропорционально велики — около 40% народа.</li><li>Власть знала о голоде, но продолжала изымать скот и мешала людям уходить из голодных районов.</li><li>Многие историки и общественные деятели предлагают признать Ашаршылық геноцидом.</li></ul></div>
+        <div class="side g"><small>Аргументы «трагедия»</small><ul><li>Часть историков не находит доказательств умысла уничтожить именно казахов как народ.</li><li>Голод поразил и Украину, Поволжье, Сибирь — причиной называют общую политику коллективизации.</li><li>Юридической оценки как геноцида на государственном уровне пока нет — вопрос изучают историки.</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 ch3 memorial -->
+  <section class="slide" data-ch="3">
+    <div class="bg" style="background-image:url(assets/famine.jpg);filter:grayscale(1) brightness(.35)"></div><div class="shade full" style="background:rgba(13,11,9,.6)"></div>
+    <div class="in center">
+      <div class="candle r"></div>
+      <p class="memorial r d1">«31 мая в Казахстане — День памяти жертв политических репрессий и голода».</p>
+      <p class="lead r d2">Просим минуту тишины в память о погибших.</p>
+    </div>
+  </section>
+
+  <!-- 13 ch4 cover -->
+  <section class="slide" data-ch="4">
+    <div class="bg" style="background-image:url(assets/nep.jpg)"></div><div class="shade"></div>
+    <div class="chapnum r d2">04</div>
+    <div class="in">
+      <div class="eyebrow r">Глава 4 · 1921–1928</div>
+      <h2 class="t r d1">НЭП и земельно-водная <em>реформа</em></h2>
+      <p class="lead r d2">После Гражданской войны и голода власть отступила: <b>новая экономическая политика</b> разрешила торговлю и частное хозяйство, а реформы вернули казахам часть земли и воды.</p>
+    </div>
+  </section>
+
+  <!-- 14 ch4 flow -->
+  <section class="slide" data-ch="4">
+    <div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">1921 · X съезд РКП(б)</div>
+      <div class="flow r d1">
+        <div class="card old"><small>Было</small><h4>Продразвёрстка</h4><p>Государство забирало почти все «излишки» хлеба и скота. Крестьянину и скотоводу незачем было производить больше.</p></div>
+        <div class="arrowbig">→</div>
+        <div class="card"><small>Стало</small><h4>Продналог</h4><p>Фиксированный налог, остальное можно продать. Разрешены торговля, кооперативы и мелкое частное хозяйство, снова заработали ярмарки.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 ch4 reform -->
+  <section class="slide" data-ch="4">
+    <div class="bg" style="background-image:url(assets/nep.jpg);filter:brightness(.4)"></div><div class="shade full" style="background:rgba(13,11,9,.75)"></div>
+    <div class="in center">
+      <div class="eyebrow r">Земля и вода</div>
+      <div class="grid3 r d1">
+        <div class="tile"><time>1921–1922</time><b>Земельная реформа</b><p>Казахам вернули часть земель, отнятых в царское время под переселенцев, прежде всего в Жетысу и на Сырдарье.</p></div>
+        <div class="tile"><time>1926–1927</time><b>Земельно-водная реформа</b><p>На юге землю и воду для полива перераспределили в пользу бедных хозяйств, изымая излишки у баев.</p></div>
+        <div class="tile"><time>1925</time><b>Новый статус</b><p>Киргизская АССР переименована в Казахскую, столица перенесена из Оренбурга в Кзыл-Орду.</p></div>
+      </div>
+      <p class="lead r d2">Итог: к середине 1920-х хозяйство восстановилось и скота стало больше. Но в <b>1928 году</b> НЭП свернули — началась конфискация хозяйств баев, а за ней коллективизация.</p>
+    </div>
+  </section>
+
+  <!-- 16 final -->
+  <section class="slide" data-ch="5">
+    <div class="shade full"></div>
+    <div class="in center">
+      <div class="eyebrow r">Выводы</div>
+      <h2 class="t r d1" style="max-width:none">Что мы <em>поняли</em></h2>
+      <div class="answers r d2">
+        <div class="ans"><b>01</b><h5>Кокандская автономия</h5><p>Демократическая альтернатива власти большевиков-меньшинства. Уничтожена силой через 72 дня.</p></div>
+        <div class="ans"><b>02</b><h5>Алаш-Орда</h5><p>Вынужденный тактический выбор: шли с теми, кто признавал автономию. Цель — земля и самоуправление.</p></div>
+        <div class="ans"><b>03</b><h5>Ашаршылық</h5><p>Следствие коллективизации и оседания. Погибло около 40% казахов. Оценка как геноцида — предмет научного спора.</p></div>
+        <div class="ans"><b>04</b><h5>НЭП</h5><p>Короткая передышка: торговля, возврат земель и воды. Свёрнут в 1928 году.</p></div>
+      </div>
+      <p class="lead r d3" style="margin-top:8px">Спасибо за внимание! Мы готовы ответить на ваши вопросы.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="bar" id="bar">
+  <div class="chaps" id="chaps">
+    <button class="chap" data-ch="1" type="button"><i><b></b></i><span>01 · Коканд</span></button>
+    <button class="chap" data-ch="2" type="button"><i><b></b></i><span>02 · Алаш-Орда</span></button>
+    <button class="chap" data-ch="3" type="button"><i><b></b></i><span>03 · Голод</span></button>
+    <button class="chap" data-ch="4" type="button"><i><b></b></i><span>04 · НЭП</span></button>
+  </div>
+  <span class="count" id="count"></span>
+  <div class="nav"><button class="nb" id="prev" type="button" aria-label="Назад">←</button><button class="nb go" id="next" type="button" aria-label="Дальше">→</button></div>
+</nav>
+
+<script>
+(function () {
+"use strict";
+const $ = (id) => document.getElementById(id);
+const slides = [...document.querySelectorAll(".slide")];
+const N = slides.length;
+let cur = -1, scaleK = -1;
+const ANG = [0, -12, 11, 16];
+function scale(k) {
+  scaleK = k;
+  $("beam").style.transform = `rotate(${ANG[k]}deg)`;
+  document.querySelectorAll(".st").forEach((s, i) => { s.classList.toggle("on", i === k); s.classList.toggle("past", i < k); });
+  const m = $("alashMark"); m.style.transition = "opacity .8s, transform 1s"; m.style.transformOrigin = "300px 78px";
+  if (k === 3) { m.style.opacity = .25; m.style.transform = "translateY(-30px)"; } else { m.style.opacity = 1; m.style.transform = k === 1 ? "translateX(-110px)" : k === 2 ? "translateX(110px)" : "none"; }
+}
+document.querySelectorAll(".st").forEach((b) => b.addEventListener("click", () => scale(+b.dataset.k)));
+function countUp(el) {
+  const to = +el.dataset.count, t0 = performance.now(), d = 1800;
+  const f = (now) => { const p = Math.min(1, (now - t0) / d); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); };
+  el.textContent = "0"; setTimeout(() => requestAnimationFrame(f), 500);
+}
+function go(i) {
+  if (i < 0 || i >= N || i === cur) return;
+  slides.forEach((s, k) => s.classList.toggle("on", k === i));
+  // restart ken burns
+  const bg = slides[i].querySelector(".bg"); if (bg) { bg.style.animation = "none"; void bg.offsetWidth; bg.style.animation = ""; }
+  slides[i].querySelectorAll("[data-count]").forEach(countUp);
+  if (slides[i].id === "scaleSlide" && scaleK < 0) scale(0);
+  cur = i;
+  const ch = +slides[i].dataset.ch;
+  document.querySelectorAll(".chap").forEach((c) => {
+    const n = +c.dataset.ch; c.classList.toggle("on", n === ch);
+    const idx = slides.map((s, k) => [+s.dataset.ch, k]).filter(([c2]) => c2 === n).map(([, k]) => k);
+    const done = idx.filter((k) => k <= i).length; c.querySelector("b").style.width = (done / idx.length * 100) + "%";
+  });
+  $("count").textContent = `${i + 1} / ${N}`;
+  history.replaceState(null, "", "#" + (i + 1));
+}
+function next() {
+  if (slides[cur].id === "scaleSlide" && scaleK < 3) { scale(scaleK + 1); return; }
+  go(cur + 1);
+}
+function prev() {
+  if (slides[cur].id === "scaleSlide" && scaleK > 0) { scale(scaleK - 1); return; }
+  go(cur - 1);
+}
+$("next").addEventListener("click", next);
+$("prev").addEventListener("click", prev);
+document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => go(+b.dataset.go)));
+document.querySelectorAll(".chap").forEach((c) => c.addEventListener("click", () => go(slides.findIndex((s) => +s.dataset.ch === +c.dataset.ch))));
+$("fs").addEventListener("click", () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); });
+document.addEventListener("keydown", (e) => {
+  if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); next(); }
+  else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.key === "Home") go(0); else if (e.key === "End") go(N - 1);
+});
+let tx = null;
+addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+addEventListener("touchend", (e) => { if (tx == null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) (dx < 0 ? next : prev)(); tx = null; });
+const h = parseInt(location.hash.slice(1), 10);
+go(h > 0 && h <= N ? h - 1 : 0);
+window.__deck = { go, next, get cur() { return cur; }, N };
+})();
+</script>
+</body>
+</html>
